@@ -20,5 +20,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error. Please contact administrator");
     }
 
+    @ExceptionHandler(InvalidRoleAssignmentException.class)
+    public ResponseEntity<String> handleInvalidRoleAssignment(InvalidRoleAssignmentException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler(InvalidUserNameException.class)
+    public ResponseEntity<String> handleInvalidUserNameException(InvalidUserNameException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
 
