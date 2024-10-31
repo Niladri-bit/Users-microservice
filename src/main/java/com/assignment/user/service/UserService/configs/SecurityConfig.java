@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/users/{userId}").hasAuthority("ADMIN")
                 .requestMatchers("/users/{userId}").hasAnyAuthority("ADMIN","MODERATOR") 
                 .anyRequest().authenticated() 
+            .and()
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); 
 
         return http.build();
@@ -55,7 +56,7 @@ public class SecurityConfig {
             http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
             .userDetailsService(userDetailsServiceImpl)
-            .passwordEncoder(passwordEncoder); 
+            .passwordEncoder(passwordEncoder); // Use the passwordEncoder method directly
         return authenticationManagerBuilder.build();
     }
 
