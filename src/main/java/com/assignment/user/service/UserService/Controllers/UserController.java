@@ -1,13 +1,11 @@
 package com.assignment.user.service.UserService.Controllers;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,17 +53,6 @@ public class UserController {
         UserDTO createdUser = userService.createUser(userDTO);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
-	
-//	@PostMapping(path = "/users/login")
-//	public ResponseEntity<String> loginUser(@RequestBody UserLoginDTO loginRequest) {
-//	    boolean isAuthenticated = userService.authenticateUser(loginRequest.getUserName(), loginRequest.getPassword());
-//	    
-//	    if (isAuthenticated) {
-//	        return ResponseEntity.ok("Login successful");
-//	    } else {
-//	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-//	    }
-//	}
 	
 	@PostMapping("/users/login")
     public ResponseEntity<String> loginUser(@RequestBody UserLoginDTO loginRequest) {
