@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.assignment.user.service.UserService.DTO.UserDTO;
 import com.assignment.user.service.UserService.DTO.UserLoginDTO;
 import com.assignment.user.service.UserService.Services.UserService;
+import com.assignment.user.service.UserService.utils.JwtUtil;
 import com.assignment.user.service.UserService.utils.Util;
 
 @RestController
@@ -24,9 +26,14 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
 
 	@GetMapping(path = "/users/{userID}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<UserDTO> getUserId(@PathVariable Long userID) {
 		UserDTO user = userService.getUserById(userID);
 		return ResponseEntity.ok(user);
@@ -50,16 +57,27 @@ public class UserController {
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 	
-	@PostMapping(path = "/users/login")
-	public ResponseEntity<String> loginUser(@RequestBody UserLoginDTO loginRequest) {
-	    boolean isAuthenticated = userService.authenticateUser(loginRequest.getUserName(), loginRequest.getPassword());
-	    
-	    if (isAuthenticated) {
-	        return ResponseEntity.ok("Login successful");
-	    } else {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-	    }
-	}
+//	@PostMapping(path = "/users/login")
+//	public ResponseEntity<String> loginUser(@RequestBody UserLoginDTO loginRequest) {
+//	    boolean isAuthenticated = userService.authenticateUser(loginRequest.getUserName(), loginRequest.getPassword());
+//	    
+//	    if (isAuthenticated) {
+//	        return ResponseEntity.ok("Login successful");
+//	    } else {
+//	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+//	    }
+//	}
+	
+	@PostMapping("/users/login")
+    public ResponseEntity<String> loginUser(@RequestBody UserLoginDTO loginRequest) {
+        boolean isAuthenticated = userService.authenticateUser(loginRequest.getUserName(), loginRequest.getPassword());
+        if (isAuthenticated) {
+            String jwt = jwtUtil.generateToken(loginRequest.getUserName());
+            return ResponseEntity.ok(jwt);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+    }
 	
 	@PostMapping("/users/{userId}/roles")
 	public ResponseEntity<String> assignRoles(@PathVariable Long userId, @RequestBody Set<String> roles) {

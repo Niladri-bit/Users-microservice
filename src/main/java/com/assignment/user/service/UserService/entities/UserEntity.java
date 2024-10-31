@@ -28,7 +28,7 @@ public class UserEntity {
     private String address;
     private LocalDateTime dateOfJoining;
     
-    @ElementCollection // This indicates a collection of simple types
+    @ElementCollection(fetch = FetchType.EAGER) // This indicates a collection of simple types
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role") // This is the column name for roles in the user_roles table
     private Set<String> roles = new HashSet<>();
