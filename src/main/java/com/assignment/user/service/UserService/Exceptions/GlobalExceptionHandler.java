@@ -29,5 +29,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleInvalidUserNameException(InvalidUserNameException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+    
+    @ExceptionHandler(TokenValidationException.class)
+    public ResponseEntity<String> handleTokenValidationException(TokenValidationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 }
 
