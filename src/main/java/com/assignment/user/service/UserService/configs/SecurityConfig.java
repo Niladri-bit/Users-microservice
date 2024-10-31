@@ -3,6 +3,7 @@ package com.assignment.user.service.UserService.configs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,18 +33,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable() // Disable CSRF protection for testing (not recommended for production)
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless session
+            .csrf().disable() 
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
             .and()
             .authorizeRequests()
-                .requestMatchers("/users/register", "/users/login").permitAll() // Allow register and login for all
-                .requestMatchers("/users/**").hasAuthority("ADMIN") // Admin can access all user APIs
-                .requestMatchers("/users/{userId}/roles").hasAuthority("ADMIN") // Only admin can assign roles
-                .requestMatchers("/users").hasAnyAuthority("ADMIN", "MODERATOR") // Admin and moderator can access all users
-                .requestMatchers("/users/{userId}").hasAnyAuthority("ADMIN", "MODERATOR") // Admin and moderator can access user by ID
-                .anyRequest().authenticated() // All other requests require authentication
-            .and()
-            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
+                .requestMatchers("/users/register", "/users/login").permitAll()
+                .requestMatchers("/users/{userId}/roles").hasAuthority("ADMIN") 
+                .requestMatchers("/users").hasAnyAuthority("ADMIN","MODERATOR") 
+                .requestMatchers(HttpMethod.DELETE, "/users/{userId}").hasAuthority("ADMIN")
+                .requestMatchers("/users/{userId}").hasAnyAuthority("ADMIN","MODERATOR") 
+                .anyRequest().authenticated() 
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); 
 
         return http.build();
     }
@@ -55,7 +55,7 @@ public class SecurityConfig {
             http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
             .userDetailsService(userDetailsServiceImpl)
-            .passwordEncoder(passwordEncoder); // Use the passwordEncoder method directly
+            .passwordEncoder(passwordEncoder); 
         return authenticationManagerBuilder.build();
     }
 
