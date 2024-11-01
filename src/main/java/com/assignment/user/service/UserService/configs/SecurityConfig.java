@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -37,7 +36,8 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
             .and()
             .authorizeRequests()
-                .requestMatchers("/users/register", "/users/login","/validateToken").permitAll()
+                .requestMatchers("/users/register", "/users/login").permitAll()
+                .requestMatchers("/validateToken").hasAnyAuthority("ADMIN","ROLE_SERVICE_COMMUNICATOR") 
                 .requestMatchers("/users/{userId}/roles").hasAuthority("ADMIN") 
                 .requestMatchers("/users").hasAnyAuthority("ADMIN","MODERATOR") 
                 .requestMatchers(HttpMethod.DELETE, "/users/{userId}").hasAuthority("ADMIN")
