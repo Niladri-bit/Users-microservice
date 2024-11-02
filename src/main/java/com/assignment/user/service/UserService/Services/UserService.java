@@ -39,6 +39,9 @@ public class UserService {
             .orElseThrow(() -> new UserNotFoundException(userId));
 
         for (Role role : roles) {
+        	if (role == Role.ROLE_SERVICE_COMMUNICATOR) {
+                throw new InvalidRoleAssignmentException("Cannot assign ROLE_SERVICE_COMMUNICATOR via this service.");
+            }
             if (!Util.isValidRole(role)) {
                 throw new InvalidRoleAssignmentException("Invalid role: " + role);
             }
