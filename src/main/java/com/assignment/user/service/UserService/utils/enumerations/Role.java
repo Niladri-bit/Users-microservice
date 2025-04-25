@@ -4,5 +4,6 @@ public enum Role {
 	USER,
 	MODERATOR,
 	ROLE_SERVICE_COMMUNICATOR,
+	STUDENT,
     ADMIN;
 }

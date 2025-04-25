@@ -10,14 +10,18 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.assignment.user.service.UserService.DTO.StudentRegisterDTO;
 import com.assignment.user.service.UserService.DTO.UserDTO;
 import com.assignment.user.service.UserService.DTO.UserLoginDTO;
 import com.assignment.user.service.UserService.Services.UserService;
 import com.assignment.user.service.UserService.utils.JwtUtil;
 import com.assignment.user.service.UserService.utils.Util;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class UserController {
@@ -28,33 +32,50 @@ public class UserController {
 
     @Autowired
     private JwtUtil jwtUtil;
+    
+    @PostMapping(path = "/students")
+    public ResponseEntity<UserDTO> addUser(@Valid @RequestBody StudentRegisterDTO studentRegisterDTO) {
+    	System.out.println("StudentRegisterDTO = " + studentRegisterDTO);
+        UserDTO createdUser = userService.createStudent(studentRegisterDTO);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+	
 
-
-	@GetMapping(path = "/users/{userID}")
-	public ResponseEntity<UserDTO> getUserId(@PathVariable Long userID) {
-		UserDTO user = userService.getUserById(userID);
+	@GetMapping(path = "/students/{userID}")
+	public ResponseEntity<StudentRegisterDTO> getUserId(@PathVariable Long userID) {
+		StudentRegisterDTO user = userService.getUserById(userID);
 		return ResponseEntity.ok(user);
 	}
 	
-	 @GetMapping(path = "/users")
-	    public ResponseEntity<List<UserDTO>> getAllUsers() {
-	       List<UserDTO> users = userService.getAllUsers(); 
+	@PutMapping("/students/{id}")
+	public ResponseEntity<StudentRegisterDTO> updateStudent(
+	        @PathVariable Long id,
+	        @RequestBody StudentRegisterDTO studentDto) {
+	    
+	    StudentRegisterDTO updatedStudent = userService.updateStudent(id, studentDto);
+	    return ResponseEntity.ok(updatedStudent);
+	}
+
+	
+	 @GetMapping(path = "/students")
+	    public ResponseEntity<List<StudentRegisterDTO>> getAllUsers() {
+	       List<StudentRegisterDTO> users = userService.getAllUsers(); 
 	       return ResponseEntity.ok(users);
 	    }
 	 
-	 @DeleteMapping(path = "/users/{userID}")
+	 @DeleteMapping(path = "/students/{userID}")
 	    public ResponseEntity<String> deleteUser(@PathVariable Long userID) {
 	        userService.deleteUserById(userID);
 	        return ResponseEntity.ok("User deleted successfully.");
 	    }
 	
-	@PostMapping(path = "/users/register")
+	@PostMapping(path = "/auth/register")
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         UserDTO createdUser = userService.createUser(userDTO);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 	
-	@PostMapping("/users/login")
+	@PostMapping("/auth/login")
     public ResponseEntity<String> loginUser(@RequestBody UserLoginDTO loginRequest) {
         boolean isAuthenticated = userService.authenticateUser(loginRequest.getUserName(), loginRequest.getPassword());
         if (isAuthenticated) {

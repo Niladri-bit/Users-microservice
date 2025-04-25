@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.assignment.user.service.UserService.DTO.StudentRegisterDTO;
 import com.assignment.user.service.UserService.DTO.UserDTO;
 import com.assignment.user.service.UserService.Exceptions.InvalidRoleAssignmentException;
 import com.assignment.user.service.UserService.Exceptions.InvalidUserNameException;
@@ -51,12 +52,21 @@ public class UserService {
     }
 
 	  
-	public UserDTO getUserById(Long userId) {
+	public StudentRegisterDTO getUserById(Long userId) {
 		UserEntity userEntity = userRepository.findById(userId).orElse(null);
-		if(userEntity == null) {
+
+		if(userEntity == null ) {
 			throw new UserNotFoundException(userId);
 		}
-		return modelMapper.map(userEntity, UserDTO.class);
+		
+
+		 boolean isStudent = userEntity.getRoles().stream()
+		            .anyMatch(role -> role.equalsIgnoreCase("STUDENT") );
+
+		 if(!isStudent) {
+				throw new UserNotFoundException(userId);
+			}
+		return modelMapper.map(userEntity, StudentRegisterDTO.class);
 	}
 	
 	public UserDTO createUser(UserDTO userDTO) {
@@ -69,6 +79,16 @@ public class UserService {
         return modelMapper.map(userEntity, UserDTO.class);
     }
 	
+	public UserDTO createStudent(StudentRegisterDTO studentDTO) {
+		validateUserName(studentDTO.getUserName());
+        UserEntity userEntity = modelMapper.map(studentDTO, UserEntity.class);
+        userEntity.setDateOfJoining(LocalDateTime.now()); 
+        userEntity.setPassword(passwordEncoder.encode(studentDTO.getPassword()));
+        userEntity.getRoles().add(Role.STUDENT.toString());
+        userEntity = userRepository.save(userEntity);
+        return modelMapper.map(userEntity, UserDTO.class);
+    }
+
 	public boolean authenticateUser(String username, String password) {
 	    UserEntity userEntity = userRepository.findByUserName(username);
 	    
@@ -78,21 +98,65 @@ public class UserService {
 	    return false;
 	}
 	
-	public List<UserDTO> getAllUsers() {
+	
+	
+	public List<StudentRegisterDTO> getAllUsers() {
 	    List<UserEntity> userEntities = userRepository.findAll(); 
-	    return userEntities.stream() 
-	        .map(userEntity -> modelMapper.map(userEntity, UserDTO.class))
+
+	    return userEntities.stream()
+	        .filter(user -> user.getRoles().stream()
+	            .anyMatch(role -> role.equalsIgnoreCase("STUDENT")))
+	        .map(userEntity -> modelMapper.map(userEntity, StudentRegisterDTO.class))
 	        .collect(Collectors.toList()); 
 	}
-	
+
+	 
 	 public void deleteUserById(Long id) {
-		 Optional<UserEntity> user = userRepository.findById(id);
-	        if (user.isPresent()) {
-	            userRepository.deleteById(id);
-	        } else {
-	            throw new UserNotFoundException(id); 
-	        }
-	    }
+		    Optional<UserEntity> userOptional = userRepository.findById(id);
+
+		    if (userOptional.isPresent()) {
+		        UserEntity user = userOptional.get();
+
+		        boolean isStudent = user.getRoles().stream()
+		                .anyMatch(role -> role.equalsIgnoreCase("STUDENT"));
+
+		        if (!isStudent) {
+		            throw new UserNotFoundException(id);
+		        }
+
+		        userRepository.deleteById(id);
+		    } else {
+		        throw new UserNotFoundException(id);
+		    }
+		}
+
+	
+
+	 public StudentRegisterDTO updateStudent(Long id, StudentRegisterDTO studentDto) {
+		    Optional<UserEntity> existingStudentOpt = userRepository.findById(id);
+
+		    if (!existingStudentOpt.isPresent()) {
+		        throw new UserNotFoundException(id);
+		    }
+
+		    UserEntity existingStudent = existingStudentOpt.get();
+
+		    boolean isStudent = existingStudent.getRoles().stream()
+		            .anyMatch(role ->  role.equalsIgnoreCase("STUDENT"));
+
+		    if (!isStudent) {
+		        throw new UserNotFoundException(id);
+		    }
+
+		    studentDto.setId(existingStudent.getId());
+		    modelMapper.map(studentDto, existingStudent);
+
+		    UserEntity updatedStudent = userRepository.save(existingStudent);
+
+		    return modelMapper.map(updatedStudent, StudentRegisterDTO.class);
+		}
+
+
 	 
 	 public void validateUserName(String username) {
 		 UserEntity userEntity = userRepository.findByUserName(username);

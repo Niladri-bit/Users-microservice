@@ -1,6 +1,7 @@
 package com.assignment.user.service.UserService.entities;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +28,8 @@ public class UserEntity {
     private String lastName;
     private String address;
     private LocalDateTime dateOfJoining;
+    private String studentClass;
+    private LocalDate dateOfBirth;
     
     @ElementCollection(fetch = FetchType.EAGER) // This indicates a collection of simple types
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
@@ -97,6 +100,22 @@ public class UserEntity {
 		this.dateOfJoining = dateOfJoining;
 	}
 
+	public String getStudentClass() {
+		return studentClass;
+	}
+
+	public void setStudentClass(String studentClass) {
+		this.studentClass = studentClass;
+	}
+
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
 	public Set<String> getRoles() {
 		return roles;
 	}
@@ -106,7 +125,8 @@ public class UserEntity {
 	}
 
 	public UserEntity(Long id, String email, String userName, String password, String firstName, String lastName,
-			String address, LocalDateTime dateOfJoining, Set<String> roles) {
+			String address, LocalDateTime dateOfJoining, String studentClass, LocalDate dateOfBirth,
+			Set<String> roles) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -116,6 +136,8 @@ public class UserEntity {
 		this.lastName = lastName;
 		this.address = address;
 		this.dateOfJoining = dateOfJoining;
+		this.studentClass = studentClass;
+		this.dateOfBirth = dateOfBirth;
 		this.roles = roles;
 	}
 
@@ -123,6 +145,7 @@ public class UserEntity {
 		super();
 		// TODO Auto-generated constructor stub
 	} 
+	
 
     
 }
