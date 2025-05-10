@@ -77,7 +77,7 @@ public class UserService {
         UserEntity userEntity = modelMapper.map(userDTO, UserEntity.class);
         userEntity.setDateOfJoining(LocalDateTime.now()); 
         userEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        userEntity.getRoles().add(Role.USER.toString());
+        userEntity.getRoles().add(Role.ADMIN.toString());
         userEntity = userRepository.save(userEntity);
         return modelMapper.map(userEntity, UserDTO.class);
     }

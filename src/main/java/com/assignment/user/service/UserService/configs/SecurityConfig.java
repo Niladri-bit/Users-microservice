@@ -37,6 +37,12 @@ public class SecurityConfig {
             .and()
             .authorizeRequests()
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers(
+                    "/auth/**",           // public auth endpoints
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
                 .requestMatchers("/auth/register", "/auth/login").permitAll() // No auth required for register/login
                 .requestMatchers("/validateToken").hasAnyAuthority("ADMIN", "ROLE_SERVICE_COMMUNICATOR")
                 .requestMatchers("/users/{userId}/roles").hasAuthority("ADMIN")
