@@ -26,14 +26,18 @@ public class VaccinationCommunicationService {
     private RestTemplate restTemplate;
 
   
-    public void deleteVaccinationsForAStudent(Long id) {
+    public void deleteVaccinationsForAStudent(Long id,String token) {
         
         String url = "http://localhost:8082/vaccinations/students/" + id;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
 
         ResponseEntity<String> vaccinationResponse = restTemplate.exchange(
                 url,
                 HttpMethod.DELETE,
-                null, // No body
+                entity,
                 String.class
         );
         

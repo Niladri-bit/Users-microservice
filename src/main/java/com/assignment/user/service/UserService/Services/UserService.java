@@ -127,7 +127,7 @@ public class UserService {
 	}
 
 	 @Transactional
-	 public void deleteUserById(Long id) {
+	 public void deleteUserById(Long id,String token) {
 		    Optional<UserEntity> userOptional = userRepository.findById(id);
 
 		    if (userOptional.isPresent()) {
@@ -139,7 +139,7 @@ public class UserService {
 		        if (!isStudent) {
 		            throw new UserNotFoundException(id);
 		        }
-		        vaccinationCommunicationService.deleteVaccinationsForAStudent(id);
+		        vaccinationCommunicationService.deleteVaccinationsForAStudent(id,token);
 		        userRepository.deleteById(id);
 		    } else {
 		        throw new UserNotFoundException(id);
