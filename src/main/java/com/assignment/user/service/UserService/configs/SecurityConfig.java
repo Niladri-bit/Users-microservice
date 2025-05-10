@@ -32,23 +32,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable() 
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
+            .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-                .requestMatchers("/auth/register", "/auth/login").permitAll()
-                .requestMatchers("/validateToken").hasAnyAuthority("ADMIN","ROLE_SERVICE_COMMUNICATOR") 
-                .requestMatchers("/users/{userId}/roles").hasAuthority("ADMIN") 
-                .requestMatchers("/students").hasAnyAuthority("ADMIN","MODERATOR") 
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/auth/register", "/auth/login").permitAll() // No auth required for register/login
+                .requestMatchers("/validateToken").hasAnyAuthority("ADMIN", "ROLE_SERVICE_COMMUNICATOR")
+                .requestMatchers("/users/{userId}/roles").hasAuthority("ADMIN")
+                .requestMatchers("/students").hasAnyAuthority("ADMIN", "MODERATOR")
                 .requestMatchers(HttpMethod.DELETE, "/students/{userId}").hasAuthority("ADMIN")
-                .requestMatchers("/students/{userId}").hasAnyAuthority("ADMIN","MODERATOR") 
-                .anyRequest().authenticated() 
+                .requestMatchers("/students/{userId}").hasAnyAuthority("ADMIN", "MODERATOR")
+                .anyRequest().authenticated()
             .and()
-            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); 
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
@@ -56,9 +56,7 @@ public class SecurityConfig {
             http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
             .userDetailsService(userDetailsServiceImpl)
-            .passwordEncoder(passwordEncoder); // Use the passwordEncoder method directly
+            .passwordEncoder(passwordEncoder);
         return authenticationManagerBuilder.build();
     }
-
-    
 }

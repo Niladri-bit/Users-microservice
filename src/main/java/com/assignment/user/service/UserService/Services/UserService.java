@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.assignment.user.service.UserService.DTO.StudentRegisterDTO;
 import com.assignment.user.service.UserService.DTO.UserDTO;
@@ -32,6 +33,8 @@ public class UserService {
 	private ModelMapper modelMapper;
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private VaccinationCommunicationService vaccinationCommunicationService;
 	
 	
 	 
@@ -100,17 +103,30 @@ public class UserService {
 	
 	
 	
-	public List<StudentRegisterDTO> getAllUsers() {
-	    List<UserEntity> userEntities = userRepository.findAll(); 
+//	public List<StudentRegisterDTO> getAllUsers() {
+//	    List<UserEntity> userEntities = userRepository.findAll(); 
+//
+//	    return userEntities.stream()
+//	        .filter(user -> user.getRoles().stream()
+//	            .anyMatch(role -> role.equalsIgnoreCase("STUDENT")))
+//	        .map(userEntity -> modelMapper.map(userEntity, StudentRegisterDTO.class))
+//	        .collect(Collectors.toList()); 
+//	}
+
+	public List<StudentRegisterDTO> getAllUsers(List<String> classList) {
+	    List<UserEntity> userEntities = userRepository.findAll();
 
 	    return userEntities.stream()
 	        .filter(user -> user.getRoles().stream()
 	            .anyMatch(role -> role.equalsIgnoreCase("STUDENT")))
+	        .filter(user -> classList == null || 
+	            classList.stream()
+	                .anyMatch(c -> c.equalsIgnoreCase(user.getStudentClass())))
 	        .map(userEntity -> modelMapper.map(userEntity, StudentRegisterDTO.class))
-	        .collect(Collectors.toList()); 
+	        .collect(Collectors.toList());
 	}
 
-	 
+	 @Transactional
 	 public void deleteUserById(Long id) {
 		    Optional<UserEntity> userOptional = userRepository.findById(id);
 
@@ -123,7 +139,7 @@ public class UserService {
 		        if (!isStudent) {
 		            throw new UserNotFoundException(id);
 		        }
-
+		        vaccinationCommunicationService.deleteVaccinationsForAStudent(id);
 		        userRepository.deleteById(id);
 		    } else {
 		        throw new UserNotFoundException(id);

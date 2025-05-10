@@ -1,5 +1,6 @@
 package com.assignment.user.service.UserService.Controllers;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.assignment.user.service.UserService.DTO.StudentRegisterDTO;
@@ -55,13 +57,19 @@ public class UserController {
 	    StudentRegisterDTO updatedStudent = userService.updateStudent(id, studentDto);
 	    return ResponseEntity.ok(updatedStudent);
 	}
-
-	
+	 
 	 @GetMapping(path = "/students")
-	    public ResponseEntity<List<StudentRegisterDTO>> getAllUsers() {
-	       List<StudentRegisterDTO> users = userService.getAllUsers(); 
-	       return ResponseEntity.ok(users);
-	    }
+	 public ResponseEntity<List<StudentRegisterDTO>> getAllUsers(
+	         @RequestParam(value = "studentClass", required = false) String studentClass) {
+	     
+	     List<String> classList = studentClass != null
+	         ? Arrays.asList(studentClass.split(","))
+	         : null;
+
+	     List<StudentRegisterDTO> users = userService.getAllUsers(classList);
+	     return ResponseEntity.ok(users);
+	 }
+
 	 
 	 @DeleteMapping(path = "/students/{userID}")
 	    public ResponseEntity<String> deleteUser(@PathVariable Long userID) {
